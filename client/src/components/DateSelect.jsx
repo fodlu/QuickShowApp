@@ -30,6 +30,7 @@ const DateSelect = ({datetime, id}) => {
                             <button onClick={()=> setSelected(date)} key={date} className={`flex flex-col items-center justify-center h-14 w-14 aspect-square rounded cursor-pointer ${selected === date ? "bg-primary text-white" : "border border-primary/70"}`}>
                                 <span className="">{new Date(date).getDate()}</span>
                                 <span className="">{new Date(date).toLocaleDateString("en-US", {month: "short"})}</span>
+                                <span className="">{new Date(date).toLocaleDateString("en-US", {month: "short"})}</span>
                             </button>
                         ))}
                     </span>
