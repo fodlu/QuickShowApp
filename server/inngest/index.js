@@ -31,7 +31,7 @@ const syncUserDeletion = inngest.createFunction(
   // Argument 1: Config object
   { id: "delete-user-with-clerk",
     event: "clerk/user.deleted"
-    },
+  },
   // Argument 3: The Handler function
   async ({ event, step }) => {
     const { id } = event.data;
@@ -68,3 +68,5 @@ export const functions = [
     syncUserDeletion,
     syncUserUpdation,
 ];
+
+// om vercel at 5:05:05
