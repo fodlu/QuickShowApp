@@ -1,25 +1,37 @@
 import { useEffect, useState } from "react";
-import { dummyBookingData } from "../assets/assets";
 import Loading from "../components/Loading";
 import BlurCircle from "../components/BlurCircle";
 import timeFormat from "../lib/timeFormat";
 import { dateFormat } from "../lib/dateFormat";
+import { useAppContext } from "../context/AppContext";
+import { Link } from "react-router-dom";
+import isoTimeFormat from "../lib/isoTimeFormat";
 
 const MyBookings = () => {
+  const {axios, getToken, user, image_base_url} = useAppContext();
+
   const currency = import.meta.env.VITE_CURRENCY;
   const [loading, setLoading] = useState(true)
   const [bookings, setBookings] = useState([])
 
-  const getMyBooking = () => {
-    setBookings(dummyBookingData);
-    setTimeout(() => {
-      setLoading(false)
-    }, 2000);
+  const getMyBooking = async() => {
+    try {
+      const {data} = await axios.get('/api/user/bookings', {headers: {Authorization: `Bearer ${await getToken()}`}});
+
+      if(data.success) {
+        setBookings(data.bookings);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false)
   }
 
   useEffect(()=> {
-    getMyBooking()
-  }, [])
+    if(user){
+      getMyBooking()
+    }
+  }, [user])
 
   if(loading) return <Loading />
 
@@ -36,7 +48,7 @@ const MyBookings = () => {
       {bookings.map((item, index)=> (
         <div key={index} className="flex flex-col md:flex-row justify-between bg-primary/8 border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl">
           <div className="flex flex-col md:flex-row">
-            <img src={item.show.movie.poster_path} className="md:max-w-45 aspect-video h-auto object-cover object-bottom rounded" alt="" />
+            <img src={image_base_url + item.show.movie.poster_path} className="md:max-w-45 aspect-video h-auto object-cover object-bottom rounded" alt="" />
             <div className="flex flex-col p-4 min-w-50">
               <p className="text-lg font-semibold">{item.show.movie.title}</p>
               <p className="text-gray-400 text-sm">{timeFormat(item.show.movie.runtime)}</p>
@@ -48,7 +60,7 @@ const MyBookings = () => {
             <div className="flex items-center gap-4">
               <p className="text-2xl font-semibold mb-3">{currency}{item.amount}</p>
 
-              {!item.isPaid && <button className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer">Pay Now</button>}
+              {!item.isPaid && <Link to={isoTimeFormat.paymentLink} className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer">Pay Now</Link>}
             </div>
             <div className="text-sm">
               <p className="">

@@ -82,7 +82,7 @@ const AddShows = () => {
         setDateTimeSelection({})
         setShowPrice('')
       } else {
-        toast.error{data.message}
+        toast.error(data.message)
       }
     } catch (error) {
       console.error("Submission error: ", error)
