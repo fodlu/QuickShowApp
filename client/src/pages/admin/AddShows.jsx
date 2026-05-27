@@ -30,6 +30,7 @@ const AddShows = () => {
       console.error('Error fetching movies: ', error)
     }
   }
+  console.log(nowPlayingMovies)
 
   const handleDateTimeAdd = () => {
     if(!dateTimeInput) return;

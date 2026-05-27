@@ -31,16 +31,19 @@ const syncUserCreation = inngest.createFunction(
 // Inngest function to delete user to a database
 const syncUserDeletion = inngest.createFunction(
   // Argument 1: Config object
-  { id: "delete-user-with-clerk",
+  {
+    id: "delete-user-with-clerk",
     event: "clerk/user.deleted"
   },
   // Argument 3: The Handler function
   async ({ event, step }) => {
     const { id } = event.data;
 
-    await step.run("delete-from-db", async () => {
+    await User.findByIdAndDelete(id);
+
+    /* await step.run("delete-from-db", async () => {
       await User.findByIdAndDelete(id);
-    });
+    }); */
   }
 );
 
@@ -66,29 +69,52 @@ const syncUserUpdation = inngest.createFunction(
 
 // Inngest function to cancel booking and release seats of shows after 10mins of booking created if payment is not made.
 const releaseSeatsAndDeleteBooking = inngest.createFunction(
-  {id: 'release-seats-delete-booking'},
-  {event: 'app/checkpayment'},
-  async((event, step)=> {
+  {
+    id: 'release-seats-delete-booking',
+    event: 'app/checkpayment' // Defines the trigger event that starts this function
+  },
+  async ({ event, step }) => { // The handler function containing the workflow steps
+
+    // Calculates a timestamp for 10 minutes from now
     const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Pauses the function execution until 10 minutes have passed
     await step.sleepUntil('wait-for-10-minutes', tenMinutesLater);
-    await step.run('Check-payment-status', async()=> {
+
+    // Executes this block of logic durably (safely retries if it fails)
+    await step.run('Check-payment-status', async () => {
+      // Extracts the booking ID from the event payload
       const bookingId = event.data.bookingId;
+
+      // Retrieves the booking record from the database
       const booking = await Booking.findById(bookingId);
 
-      // if payment is not paid, release seat and delete booking
-      if(!booking.isPaid) {
-        const show = await Show.findById(booking.show);
-        booking.bookedSeats.forEach((seat)=>{
-          delete show.occupiedSeats[seat]
-        })
+      // Exits early if the booking doesn't exist
+      if (!booking) return;
 
+      // Checks if the user has NOT completed the payment within the 10-minute window
+      if (!booking.isPaid) {
+        // Finds the associated show/event in the database
+        const show = await Show.findById(booking.show);
+
+        // Exits early if the show doesn't exist
+        if (!show) return;
+
+        // Iterates through the tentatively booked seats and frees them up
+        booking.bookedSeats.forEach((seat) => {
+          delete show.occupiedSeats[seat];
+        });
+
+        // Tells Mongoose that the Map object (occupiedSeats) has changed
         show.markModified('occupiedSeats');
-        await show.save;
-        await Booking.findByIdAndDelete(booking._id)
+
+        // Saves the updated show state and deletes the unpaid booking
+        await show.save();
+        await Booking.findByIdAndDelete(booking._id);
       }
-    })
+    });
   }
-)
+);
 
 // Create an empty array where we'll export future Inngest functions
 export const functions = [
@@ -98,4 +124,4 @@ export const functions = [
     releaseSeatsAndDeleteBooking,
 ];
 
-// om vercel at 5:05:05
+// on vercel at 5:05:05

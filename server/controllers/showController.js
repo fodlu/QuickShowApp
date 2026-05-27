@@ -24,13 +24,13 @@ export const addShow = async (req, res) => {
 
         if(!movie) {
             // fetch movie details and credits from TMDB API
-            const [movieDetailsResponse, movieCreatedResponse] = await Promise.all([axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {headers: {Authorization: `Bearer ${process.env.TMDB_API_KEY}`}}),
+            const [movieDetailsResponse, movieCreditResponse] = await Promise.all([axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {headers: {Authorization: `Bearer ${process.env.TMDB_API_KEY}`}}),
 
-                axios.get(`https://api.themoviedb.org/3/movie/${movieId}/credits`, {headers: {Authorization: `Bearer ${process.env.TMDB_API_KEY}`}})
+            axios.get(`https://api.themoviedb.org/3/movie/${movieId}/credits`, {headers: {Authorization: `Bearer ${process.env.TMDB_API_KEY}`}})
             ]);
 
             const movieApiData = movieDetailsResponse.data;
-            const movieCreditData = movieCreatedResponse.data;
+            const movieCreditData = movieCreditResponse.data;
 
             const movieDetails = {
                 _id: movieId,
@@ -55,7 +55,7 @@ export const addShow = async (req, res) => {
         const showsToCreate = [];
         showsInput.forEach(show => {
             const showDate = show.date;
-            show.time.forEach(time=>{
+            show.time.forEach((time) => {
                 const dateTimeString = `${showDate}T${time}`;
                 showsToCreate.push({
                     movie: movieId,
@@ -81,7 +81,16 @@ export const addShow = async (req, res) => {
 // API to get all shows from the database
 export const getShows = async(req, res) => {
     try {
-        const shows = await Show.find({showDateTime: {gte: new Date()}}).populate('movie').sort({showDateTime: 1})
+        const shows = await Show.find({showDateTime: {$gte: new Date()}}).populate('movie').sort({showDateTime: 1})
+    /*     const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0); // Clears the time to match all shows from today
+
+        const shows = await Show.find({
+            showDateTime: { $gte: startOfDay }
+        })
+        .populate('movie')
+        .sort({ showDateTime: 1 }); */
+
 
         // filter unique shows
         const uniqueShows = new Set(shows.map((show)=> show.movie))
@@ -103,7 +112,7 @@ export const getShow = async (req, res) => {
         const movie = await Movie.findById(movieId);
         const dateTime =  {};
         shows.forEach(show => {
-            const data = show.showDateTime.toISOString().split("T")[0];
+            const date = show.showDateTime.toISOString().split("T")[0];
             if(!dateTime[date]) {
                 dateTime[date] = []
             }
