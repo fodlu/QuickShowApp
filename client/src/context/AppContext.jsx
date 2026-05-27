@@ -1,4 +1,4 @@
-/* import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import axios from 'axios'
 import { useAuth, useUser } from "@clerk/react";
@@ -14,6 +14,9 @@ export const AppProvider = ({children}) => {
     const [shows, setShows] = useState([])
     const [favoriteMovies, setFavoriteMovies] = useState([]);
     const navigate = useNavigate()
+
+    const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL
+
 
     const {user} = useUser();
     const {getToken} = useAuth()
@@ -39,6 +42,7 @@ export const AppProvider = ({children}) => {
 
             if(data.success) {
                 setShows(data.shows)
+                console.log(await data)
             }
         } catch(error) {
             toast.error(error.message)
@@ -69,17 +73,13 @@ export const AppProvider = ({children}) => {
         }
     }, [user])
 
-    const coded = "hello"
-
-
     const value = {
-        axios, coded,
+        axios,
         fetchFavoriteMovies,
         fetchIsAdmin,
-        fetchShows,
+        fetchShows, image_base_url,
         user, getToken, navigate, isAdmin, shows, favoriteMovies,
     }
-
 
     return (
         <AppContext.Provider value={value}>
@@ -89,14 +89,17 @@ export const AppProvider = ({children}) => {
 }
 
 export const useAppContext = () => {
-    useContext(AppContext)
-} */
+    return useContext(AppContext)
+}
 
-import { createContext, useContext, useState, useEffect } from 'react';
+/* import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useUser, useAuth } from '@clerk/react';
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
+
 
 export const AppContext = createContext();
 
@@ -168,10 +171,8 @@ export const AppProvider = ({ children }) => {
         }
     }, [user]);
 
-    const coded = "hello";
-
     const value = {
-        axios, coded,
+        axios,
         fetchFavoriteMovies,
         fetchIsAdmin,
         fetchShows, image_base_url,
@@ -193,3 +194,4 @@ export const useAppContext = () => {
     }
     return context;
 };
+ */
