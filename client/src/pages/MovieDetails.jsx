@@ -13,6 +13,7 @@ const MovieDetails = () => {
   const {id} = useParams();
 
   const [show, setShow] = useState(null);
+  const [credits, setCredits] = useState([])
   const navigate = useNavigate();
 
   const {shows, axios, getToken, user, fetchFavoriteMovies, favoriteMovies, image_base_url} = useAppContext();
@@ -46,6 +47,15 @@ const MovieDetails = () => {
       console.log(error)
     }
   }
+
+/*   useEffect(()=> {
+    const fetchCredit = async () => {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/credits`);
+      const data = await res.json();
+      setCredits(data)
+    }
+    fetchCredit()
+  }, [id]) */
 
   useEffect(()=> {
     getShows()
@@ -87,7 +97,7 @@ const MovieDetails = () => {
       <p className="capitalize text-lg font-medium mt-20">Your favorite casts</p>
       <div className="overflow-x-auto no-scrollbar mt-8 pb-4">
         <div className="flex items-center gap-4 w-max px-4">
-          {show.movie.casts.slice(0, 12).map((cast, index)=>(
+          {credits.casts?.slice(0, 12).map((cast, index)=>(
             <div className="flex flex-col items-center text-center" key={index}>
               <img src={image_base_url + cast.profile_path} className="rounded-full h-20 md:h-20 aspect-square object-cover" alt=""/>
               <p className="font-medium text-xs mt-3">{cast.name}</p>

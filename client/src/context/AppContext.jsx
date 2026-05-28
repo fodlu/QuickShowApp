@@ -42,7 +42,6 @@ export const AppProvider = ({children}) => {
 
             if(data.success) {
                 setShows(data.shows)
-                console.log(await data)
             }
         } catch(error) {
             toast.error(error.message)

@@ -11,7 +11,7 @@ const movieSchema = new mongoose.Schema({
     genres: {type: Array, required: true},
     cast: {type: Array, required: true},
     vote_average: {type: Number, required: true},
-    run_time: {type: Number, required: true},
+    run_time: {type: Number},
     original_language: {type: String},
 }, {timestamps: true});
 

@@ -4,7 +4,7 @@ import Show from "../models/Show.js";
 import stripe from 'stripe'
 
 // function to check the availability of selected seats for a movie
-const checkSeatAvailability = async (showId, selectedSeat) => {
+const checkSeatAvailability = async (showId, selectedSeats) => {
     try {
         const showData = await Show.findById(showId);
 
@@ -12,11 +12,11 @@ const checkSeatAvailability = async (showId, selectedSeat) => {
 
         const occupiedSeats = showData.occupiedSeats;
 
-        const isAnySeatTaken = selectedSeat.some(seat=> occupiedSeats[seat])
+        const isAnySeatTaken = selectedSeats.some(seat=> occupiedSeats[seat])
 
         return !isAnySeatTaken;
     } catch (error) {
-        console.log(error.message);
+        console.log("Error checking seat availability: ", error.message);
         return false;
     }
 }
@@ -24,11 +24,12 @@ const checkSeatAvailability = async (showId, selectedSeat) => {
 export const createBooking = async (req, res) => {
     try {
         const {userId} = req.auth();
-        const {showId, selectedSeat} = req.body;
+        const {showId, selectedSeats} = req.body;
         const {origin} = req.headers;
 
+
         // check if the seat is available for the selected show
-        const isAvailable = await checkSeatAvailability(showId, selectedSeat)
+        const isAvailable = await checkSeatAvailability(showId, selectedSeats)
 
         if(!isAvailable) {
             return res.json({success: false, message: "Selected seats are not available"})
@@ -41,7 +42,7 @@ export const createBooking = async (req, res) => {
         const booking = await Booking.create({
             user: userId,
             show: showId,
-            amount: showData.price * selectedSeat.length,
+            amount: showData.price * selectedSeats.length,
             bookedSeats: selectedSeats
         })
 
@@ -70,13 +71,13 @@ export const createBooking = async (req, res) => {
 
         const session = await stripeInstance.checkout.sessions.create({
             success_url: `${origin}/loading/my-bookings`,
-            cancelUrl: `${origin}my-bookings`,
+            cancelUrl: `${origin}/my-bookings`,
             line_items: line_items,
             mode: 'payment',
             metadata: {
                 bookingId: booking._id.toString()
             },
-            expires_at: Math.floor(Date.now() / 1000) + 30 * 60 // expires in 3o minutes
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60 // expires in 30 minutes
         })
 
         booking.paymentLink = session.url;
@@ -105,7 +106,7 @@ export const getOccupiedSeats = async (req, res) => {
         const {showId} = req.params;
         const showData = await Show.findById(showId);
 
-        const occupiedSeats = Object.keys(showsData.occupiedSeats)
+        const occupiedSeats = Object.keys(showData.occupiedSeats)
 
         res.json({success: true, occupiedSeats})
 
