@@ -289,7 +289,6 @@ export const dummyDashboardData = {
     ]
 }
 
-
 export const dummyBookingData = [
     {
         "_id": "68396334fb83252d82e17295",

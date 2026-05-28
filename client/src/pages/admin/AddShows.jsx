@@ -30,7 +30,6 @@ const AddShows = () => {
       console.error('Error fetching movies: ', error)
     }
   }
-  console.log(nowPlayingMovies)
 
   const handleDateTimeAdd = () => {
     if(!dateTimeInput) return;
@@ -47,15 +46,15 @@ const AddShows = () => {
 
   const handleRemoveTime = (date, time) => {
     setDateTimeSelection((prev)=> {
-      const filteredTime = prev[date].filter((t)=> t !== time);
-      if(filteredTime.length === 0) {
+      const filteredTimes = prev[date].filter((t)=> t !== time);
+      if(filteredTimes.length === 0) {
         const { [date]: _, ...rest} = prev;
         return rest
       }
 
       return {
         ...prev,
-        [date]: filteredTime
+        [date]: filteredTimes
       }
     })
   }
@@ -67,7 +66,7 @@ const AddShows = () => {
         return toast('Missing Required Fields')
       }
 
-      const showsInput = Object.entries(dateTimeSelection.map(([date, time])=> ({date,time})))
+      const showsInput = Object.entries(dateTimeSelection).map(([date, time])=> ({date,time}))
 
       const payload = {
         movieId: selectMovies,

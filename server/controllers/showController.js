@@ -107,7 +107,7 @@ export const getShow = async (req, res) => {
     try {
         const {movieId} = req.params;
         // get all upcoming shows for the movie
-        const shows = await Show.find({movie: movieId, showDateTime: {gte: new Date()}})
+        const shows = await Show.find({movie: movieId, showDateTime: {$gte: new Date()}})
 
         const movie = await Movie.findById(movieId);
         const dateTime =  {};
@@ -116,7 +116,7 @@ export const getShow = async (req, res) => {
             if(!dateTime[date]) {
                 dateTime[date] = []
             }
-            dateTime[date].push({time: show.showdate, showId: show._id})
+            dateTime[date].push({time: show.showDateTime, showId: show._id})
         });
 
         res.json({success: true, movie, dateTime})
