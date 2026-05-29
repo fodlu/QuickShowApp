@@ -10,6 +10,8 @@ const checkSeatAvailability = async (showId, selectedSeats) => {
 
         if(!showData) return false;
 
+        console.log(await showData)
+
         const occupiedSeats = showData.occupiedSeats;
 
         const isAnySeatTaken = selectedSeats.some(seat=> occupiedSeats[seat])
@@ -27,7 +29,6 @@ export const createBooking = async (req, res) => {
         const {showId, selectedSeats} = req.body;
         const {origin} = req.headers;
 
-
         // check if the seat is available for the selected show
         const isAvailable = await checkSeatAvailability(showId, selectedSeats)
 
@@ -42,7 +43,7 @@ export const createBooking = async (req, res) => {
         const booking = await Booking.create({
             user: userId,
             show: showId,
-            amount: showData.price * selectedSeats.length,
+            amount: Number(showData.price) * selectedSeats.length,
             bookedSeats: selectedSeats
         })
 
