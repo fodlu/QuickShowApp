@@ -123,5 +123,3 @@ export const functions = [
     syncUserUpdation,
     releaseSeatsAndDeleteBooking,
 ];
-
-// on vercel at 5:05:05

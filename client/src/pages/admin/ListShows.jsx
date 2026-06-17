@@ -46,7 +46,7 @@ const ListShows = () => {
             </tr>
           </thead>
           <tbody className="text-sm font-light">
-            {shows.map((show, index) => (
+            {shows?.map((show, index) => (
               <tr className="border-b border-primary/10 bg-primary/5 even:bg-primary/10" key={index}>
                 <td className="p-2 min-w-45 pl-5">{show.movie.title}</td>
                 <td className="p-2">{dateFormat(show.showDateTime)}</td>
