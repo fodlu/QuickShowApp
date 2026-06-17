@@ -15,8 +15,8 @@ const ListShows = () => {
   const getAllShows = async () => {
     try {
       const {data} = await axios.get('/api/admin/all-shows', {headers: {Authorization: `Bearer ${await getToken()}`}})
-
       setShows(data.shows);
+      setLoading(false)
     } catch (error) {
       console.error(error)
     }

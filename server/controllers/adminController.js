@@ -23,30 +23,36 @@ export const getDashboardData = async (req, res) => {
 
         res.json({success: true, dashboardData})
     } catch (error) {
-        console.error(error);
-        res.json({success: false, error: error.message})
+        console.error("Dashboard calculation error:", error);
+        res.status(500).json({ success: false, error: "Failed to load dashboard data." });
     }
 }
 
 // APi to get all shows
 export const getAllShows = async (req, res) => {
     try {
-        const shows = await Show.find({showDateTime: {$gte: new Date()}}).populate('movie').sort({showDateTime: 1})
-        res.json({success: true, shows})
+        const shows = await Show.find({ showDateTime: { $gte: new Date() } })
+            .populate('movie')
+            .sort({ showDateTime: 1 });
+
+        res.json({ success: true, shows });
     } catch (error) {
-        console.error(error);
-        res.json({success: false, error: error.message})
+        console.error("Error fetching shows:", error);
+        res.status(500).json({ success: false, error: "Failed to load shows." });
     }
 }
 
 // API to get all bookings
 export const getAllBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find({}).populate('user').populate({path: 'movie'}).sort({createdAt: -1})
+        const bookings = await Booking.find({})
+            .populate('user', 'name email') // Only retrieve required public data strings
+            .populate('movie')
+            .sort({ createdAt: -1 });
 
-        res.json({success: true, bookings})
+        res.json({ success: true, bookings });
     } catch (error) {
-        console.error(error);
-        res.json({success: false, error: error.message})
+        console.error("Error fetching bookings:", error);
+        res.status(500).json({ success: false, error: "Failed to load bookings." });
     }
 }

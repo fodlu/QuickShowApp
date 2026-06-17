@@ -41,7 +41,7 @@ export const createBooking = async (req, res) => {
         const booking = await Booking.create({
             user: userId,
             show: showId,
-            amount: (showData.price) * selectedSeats.length,
+            amount: (showData.showPrice) * selectedSeats.length,
             bookedSeats: selectedSeats
         })
 
